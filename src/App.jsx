@@ -5,7 +5,7 @@ const App = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [profiles, setProfiles] = useState([]);
-  const [currentProfile, setCurrentProfile] = useState("");
+  const [currentProfile, setCurrentProfile] = useState(undefined);
   const [currentProfileId, setCurrentProfileId] = useState("");
   const [isEditProfile, setIsEditProfile] = useState(false);
   const [isDeleteProfile, setIsDeleteProfile] = useState(false);
@@ -13,6 +13,7 @@ const App = () => {
 
   useEffect(() => {
     getProfiles();
+    // getCurrentProfile();
   }, []);
 
   const getProfiles = () => {
@@ -21,8 +22,15 @@ const App = () => {
       .then((data) => {
         setProfiles(data.profiles);
         setCurrentProfileId(data.default.id);
+        setCurrentProfile(data.default);
       })
       .catch((error) => console.log(error));
+  };
+
+  const handleProfileChange = (e) => {
+    setCurrentProfileId(e.target.value);
+    const profile = profiles.find((prof) => prof.id == e.target.value);
+    setCurrentProfile(profile);
   };
 
   const submitProfileHandler = (e) => {
@@ -54,9 +62,8 @@ const App = () => {
   };
 
   const editProfile = () => {
-    const profile = profiles.find((prof) => prof.id == currentProfileId);
     setIsEditProfile(true);
-    setName(profile.name);
+    setName(currentProfile.name);
     setIsOpen(true);
   };
 
@@ -78,6 +85,7 @@ const App = () => {
         console.log(data);
         if (data.success) {
           setModalMessage(`Profile ${data.profile.name} is now updated.`);
+          setCurrentProfile(data.profile);
           setName("");
           profiles.find((prof) =>
             prof.id == currentProfileId ? (prof.name = data.profile.name) : null
@@ -88,9 +96,8 @@ const App = () => {
   };
 
   const deleteProfileConfirm = () => {
-    const profile = profiles.find((prof) => prof.id == currentProfileId);
     setIsDeleteProfile(true);
-    setName(profile.name);
+    setName(currentProfile.name);
     setIsOpen(true);
   };
 
@@ -113,6 +120,7 @@ const App = () => {
             profs.filter((prof) => prof.id != data.profile.id)
           );
           const defProf = profiles.find((prof) => prof.is_default === 1);
+          setCurrentProfile(defProf);
           setCurrentProfileId(defProf.id);
         }
       })
@@ -122,36 +130,41 @@ const App = () => {
   const resetStates = () => {
     setIsOpen(false);
     setIsEditProfile(false);
-    setIsDeleteProfile(false);
     setTimeout(() => {
+      setIsDeleteProfile(false);
       setModalMessage("");
       setName("");
-    }, 500);
+    }, 300);
   };
 
   return (
     <Fragment>
-      <div>
-        <h3 className="font-medium">Profiles:</h3>
-        <select
-          onChange={(e) => setCurrentProfileId(e.target.value)}
-          value={currentProfileId}
-        >
-          {profiles.map((prof) => (
-            <option key={prof.id} value={prof.id}>
-              {prof.name}
-            </option>
-          ))}
-        </select>
-        <button className="border-4" onClick={() => setIsOpen(true)}>
-          create profile
-        </button>
-        <button className="border-4" onClick={editProfile}>
-          edit profile
-        </button>
-        <button className="border-4" onClick={deleteProfileConfirm}>
-          delete profile
-        </button>
+      <div className="flex">
+        <div className="bg-green-300">
+          <h3 className="font-medium">Profiles:</h3>
+          <select
+            onChange={(e) => handleProfileChange(e)}
+            value={currentProfileId}
+          >
+            {profiles.map((prof) => (
+              <option key={prof.id} value={prof.id}>
+                {prof.name}
+              </option>
+            ))}
+          </select>
+          <button className="border-4" onClick={() => setIsOpen(true)}>
+            create profile
+          </button>
+          <button className="border-4" onClick={editProfile}>
+            edit profile
+          </button>
+          <button className="border-4" onClick={deleteProfileConfirm}>
+            delete profile
+          </button>
+        </div>
+        <div className="bg-blue-300">
+          <h3>{}</h3>
+        </div>
       </div>
       <Modal openModal={isOpen}>
         {modalMessage ? (
