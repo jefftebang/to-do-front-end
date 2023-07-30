@@ -4,5 +4,6 @@ export default {
   theme: {
     extend: {},
   },
+  safelist: ["text-blue-600"],
   plugins: [],
 };
