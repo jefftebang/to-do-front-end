@@ -1,6 +1,6 @@
-import { Fragment, useContext, useEffect, useState } from "react";
-import Modal from "../modal/modal.component";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { ProfileContext } from "../../contexts/profile.context";
+import Modal from "../modal/modal.component";
 import AddIcon from "../icons/add.icon.component";
 import EditIcon from "../icons/edit.icon.component";
 import DeleteIcon from "../icons/delete.icon.component";
@@ -17,6 +17,9 @@ const Profile = () => {
   const [isDeleteProfile, setIsDeleteProfile] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [disabledBtn, setDisabledBtn] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [errors, setErrors] = useState([]);
 
   const { currentProfile, setCurrentProfile } = useContext(ProfileContext);
 
@@ -44,8 +47,15 @@ const Profile = () => {
     setCurrentProfile(profile);
   };
 
+  const handleInputChange = (e) => {
+    e.target.value.length <= 0 ? setDisabledBtn(true) : setDisabledBtn(false);
+    setName(e.target.value);
+    setErrors([]);
+  };
+
   const handleCreateProfile = (e) => {
     e.preventDefault();
+    setIsFetching(true);
 
     fetch(import.meta.env.VITE_TODO_API_URL + "/store-profile", {
       method: "POST",
@@ -58,9 +68,8 @@ const Profile = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
-          currentProfile.is_default = 1;
+          profiles.filter((prof) => (prof.is_default = 0));
           setModalMessage(
             <p className="mb-5 text-lg">
               Profile
@@ -75,7 +84,11 @@ const Profile = () => {
           ]);
           setCurrentProfileId(data.profile.id);
           setCurrentProfile(data.profile);
+        } else if (data.error) {
+          setErrors(data.error);
+          console.log(data);
         }
+        setIsFetching(false);
       })
       .catch((error) => console.log(error));
   };
@@ -88,6 +101,7 @@ const Profile = () => {
 
   const updateProfile = (e) => {
     e.preventDefault();
+    setIsFetching(true);
 
     fetch(import.meta.env.VITE_TODO_API_URL + "/update-profile", {
       method: "POST",
@@ -101,7 +115,6 @@ const Profile = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
           setModalMessage(
             <p className="mb-5 text-lg">
@@ -115,7 +128,11 @@ const Profile = () => {
           profiles.find((prof) =>
             prof.id == currentProfileId ? (prof.name = data.profile.name) : null
           );
+        } else if (data.error) {
+          setErrors(data.error);
+          console.log(data);
         }
+        setIsFetching(false);
       })
       .catch((error) => console.log(error));
   };
@@ -127,6 +144,8 @@ const Profile = () => {
   };
 
   const deleteProfile = () => {
+    setIsFetching(true);
+
     fetch(
       import.meta.env.VITE_TODO_API_URL +
         "/delete-profile?profileId=" +
@@ -134,7 +153,6 @@ const Profile = () => {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
           setModalMessage(
             <p className="mb-5 text-lg">
@@ -149,7 +167,10 @@ const Profile = () => {
           const defProf = profiles.find((prof) => prof.is_default === 1);
           setCurrentProfile(defProf);
           setCurrentProfileId(defProf.id);
+        } else if (data.error) {
+          console.log(data);
         }
+        setIsFetching(false);
       })
       .catch((error) => console.log(error));
   };
@@ -162,7 +183,6 @@ const Profile = () => {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
           setModalMessage(
             <p className="mb-5 text-lg">
@@ -171,8 +191,11 @@ const Profile = () => {
               is now the default profile.
             </p>
           );
+          profiles.filter((prof) => (prof.is_default = 0));
           currentProfile.is_default = 1;
           setIsOpen(true);
+        } else if (data.error) {
+          console.log(data);
         }
       })
       .catch((error) => console.log(error));
@@ -181,6 +204,7 @@ const Profile = () => {
   const resetStates = () => {
     setIsOpen(false);
     setTimeout(() => {
+      setErrors([]);
       setIsEditProfile(false);
       setIsDeleteProfile(false);
       setModalMessage("");
@@ -189,7 +213,7 @@ const Profile = () => {
   };
 
   if (isLoading) {
-    return "Loading...";
+    return <p className="m-10">Loading profiles...</p>;
   }
 
   return (
@@ -212,38 +236,53 @@ const Profile = () => {
             </div>
             <div
               title={`${
-                currentProfile.is_default === 1
+                currentProfile.is_default === 1 ||
+                currentProfile.is_default === true
                   ? "You cannot delete the default profile."
                   : "Delete this profile."
               }`}
             >
               <DeleteIcon
                 otherClass={`w-5 h-5 text-gray-400 ${
-                  currentProfile.is_default !== 1
+                  currentProfile.is_default !== 1 &&
+                  currentProfile.is_default !== true
                     ? "hover:text-red-700 cursor-pointer"
                     : null
                 } transition-all`}
                 onClick={
-                  currentProfile.is_default !== 1 ? deleteProfileConfirm : null
+                  currentProfile.is_default !== 1 &&
+                  currentProfile.is_default !== true
+                    ? deleteProfileConfirm
+                    : null
                 }
               />
             </div>
             <div
               title={`${
-                currentProfile.is_default === 1
+                currentProfile.is_default === 1 ||
+                currentProfile.is_default === true
                   ? "This is your default profile."
                   : "Make this your default profile."
               }`}
             >
               <DefaultIcon
-                isActive={currentProfile.is_default === 1 ? true : false}
+                isActive={
+                  currentProfile.is_default === 1 ||
+                  currentProfile.is_default === true
+                    ? true
+                    : false
+                }
                 otherClass={`w-6 h-6 ml-2 text-${
-                  currentProfile.is_default === 1
+                  currentProfile.is_default === 1 ||
+                  currentProfile.is_default === true
                     ? "blue-600"
                     : "gray-400 hover:text-blue-600 cursor-pointer"
                 }  transition-all`}
                 onClick={
-                  currentProfile.is_default !== 1 ? makeDefaultProfile : null
+                  currentProfile.is_default !== 1 &&
+                  currentProfile.is_default !== true
+                    ? makeDefaultProfile
+                    : null
                 }
               />
             </div>
@@ -283,10 +322,18 @@ const Profile = () => {
               delete the To Do list under this profile.
             </p>
             <div className="grid grid-cols-2 gap-12 mt-7 px-16">
-              <Button btnType="blueBTN" onClick={deleteProfile}>
+              <Button
+                btnIsDisabled={isFetching}
+                btnType="blueBTN"
+                onClick={deleteProfile}
+              >
                 Yes
               </Button>
-              <Button btnType="redBTN" onClick={resetStates}>
+              <Button
+                btnIsDisabled={isFetching}
+                btnType="redBTN"
+                onClick={resetStates}
+              >
                 Cancel
               </Button>
             </div>
@@ -299,19 +346,31 @@ const Profile = () => {
             <p className="text-center text-lg">
               {isEditProfile ? "Edit" : "Create"} Profile
             </p>
+
             <InputField
+              requestErrors={errors}
+              setMaxLength="30"
               placeholder="Profile name"
-              otherClass="mt-5 mb-8 w-[300px]"
+              containerClass="my-5"
+              otherClass="w-[300px] mb-1"
               value={name}
-              onChangeProp={(e) => setName(e.target.value)}
+              onChangeProp={(e) => handleInputChange(e)}
               type="text"
-              maxLength="30"
             />
             <div className="grid grid-cols-2 gap-12">
-              <Button type="submit" btnType="blueBTN">
+              <Button
+                btnIsDisabled={disabledBtn || isFetching || name.length <= 0}
+                type="submit"
+                btnType="blueBTN"
+              >
                 Save
               </Button>
-              <Button type="button" btnType="redBTN" onClick={resetStates}>
+              <Button
+                btnIsDisabled={isFetching}
+                type="button"
+                btnType="redBTN"
+                onClick={resetStates}
+              >
                 Cancel
               </Button>
             </div>
