@@ -6,7 +6,7 @@ import EditIcon from "../icons/edit.icon.component";
 import DeleteIcon from "../icons/delete.icon.component";
 import DefaultIcon from "../icons/default.icon.component";
 import Button from "../button/button.component";
-import InputField from "../input-field.component";
+import InputField from "../input-field/input-field.component";
 
 const Profile = () => {
   const [isOpen, setIsOpen] = useState(false);
