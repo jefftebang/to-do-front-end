@@ -4,7 +4,7 @@ import ToDos from "./components/to-dos/to-dos.component";
 const App = () => {
   return (
     <div className="flex justify-center items-center py-10">
-      <div className="container flex flex-col justify-center bg-white rounded-lg shadow-md drop-shadow-lg px-20 py-10">
+      <div className="container flex flex-col justify-center bg-white rounded-lg shadow-md drop-shadow-lg px-20 py-10 max-w-[768px]">
         <Profile />
         <ToDos />
       </div>
