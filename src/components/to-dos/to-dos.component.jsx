@@ -5,7 +5,7 @@ import DeleteIcon from "../icons/delete.icon.component";
 import CheckIcon from "../icons/check.icon.component";
 import Modal from "../modal/modal.component";
 import Button from "../button/button.component";
-import InputField from "../input-field.component";
+import InputField from "../input-field/input-field.component";
 
 const ToDos = () => {
   const [toDoList, setToDoList] = useState([]);
