@@ -15,6 +15,8 @@ const ToDos = () => {
   const [isEditToDo, setIsEditToDo] = useState(false);
   const [isDeleteToDo, setIsDeleteToDo] = useState(false);
   const [isTriggered, setIsTriggered] = useState(false);
+  const [disabledBtn, setDisabledBtn] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [toDoInputs, setToDoInputs] = useState({
     id: "",
     title: "",
@@ -48,11 +50,16 @@ const ToDos = () => {
     const newInputs = { ...toDoInputs };
     newInputs[e.target.id] = e.target.value;
 
+    newInputs["title"].length <= 0
+      ? setDisabledBtn(true)
+      : setDisabledBtn(false);
+
     setToDoInputs(newInputs);
   };
 
   const handleCreateToDo = (e) => {
     e.preventDefault();
+    setIsFetching(true);
 
     fetch(import.meta.env.VITE_TODO_API_URL + "/store-to-do", {
       method: "POST",
@@ -67,7 +74,6 @@ const ToDos = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
           setModalMessage(
             <p className="mb-5 text-lg">
@@ -79,7 +85,10 @@ const ToDos = () => {
           setToDoList(
             toDoList.length > 0 ? (todo) => [...todo, data.todo] : [data.todo]
           );
+        } else if (data.error) {
+          console.log(data);
         }
+        setIsFetching(false);
       });
   };
 
@@ -94,6 +103,7 @@ const ToDos = () => {
 
   const updateToDo = (e) => {
     e.preventDefault();
+    setIsFetching(true);
 
     fetch(import.meta.env.VITE_TODO_API_URL + "/update-to-do", {
       method: "POST",
@@ -108,7 +118,6 @@ const ToDos = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
           setModalMessage(
             <p className="mb-5 text-lg">
@@ -123,12 +132,17 @@ const ToDos = () => {
                 (tdl.description = data.todo.description))
               : null
           );
+        } else if (data.error) {
+          console.log(data);
         }
+        setIsFetching(false);
       })
       .catch((error) => console.log(error));
   };
 
   const deleteToDo = () => {
+    setIsFetching(true);
+
     fetch(
       import.meta.env.VITE_TODO_API_URL +
         "/delete-to-do?toDoId=" +
@@ -136,7 +150,6 @@ const ToDos = () => {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
           setModalMessage(
             <p className="mb-5 text-lg">
@@ -148,7 +161,10 @@ const ToDos = () => {
           setToDoList((todos) =>
             todos.filter((todo) => todo.id !== data.todo.id)
           );
+        } else if (data.error) {
+          console.log(data);
         }
+        setIsFetching(false);
       })
       .catch((error) => console.log(error));
   };
@@ -157,7 +173,6 @@ const ToDos = () => {
     fetch(import.meta.env.VITE_TODO_API_URL + "/done-to-do?toDoId=" + tdl.id)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
           toDoList.find((tdl) =>
             tdl.id === data.toDo_Id ? (tdl.is_done = data.toDo_IsDone) : null
@@ -171,6 +186,7 @@ const ToDos = () => {
   const resetStates = () => {
     setIsOpen(false);
     setTimeout(() => {
+      setDisabledBtn(false);
       setIsDeleteToDo(false);
       setIsEditToDo(false);
       setModalMessage("");
@@ -183,7 +199,7 @@ const ToDos = () => {
   };
 
   if (isLoading) {
-    return "Loading...";
+    return <p className="m-10">Loading To Dos...</p>;
   }
 
   return (
@@ -281,10 +297,18 @@ const ToDos = () => {
             </p>
 
             <div className="grid grid-cols-2 gap-12 mt-7 px-16">
-              <Button btnType="blueBTN" onClick={deleteToDo}>
+              <Button
+                btnIsDisabled={isFetching}
+                btnType="blueBTN"
+                onClick={deleteToDo}
+              >
                 Yes
               </Button>
-              <Button btnType="redBTN" onClick={resetStates}>
+              <Button
+                btnIsDisabled={isFetching}
+                btnType="redBTN"
+                onClick={resetStates}
+              >
                 Cancel
               </Button>
             </div>
@@ -302,20 +326,27 @@ const ToDos = () => {
                 value={toDoInputs.title}
                 onChangeProp={(e) => handleInput(e)}
                 type="text"
-                maxLength="60"
+                setMaxLength="60"
               />
               <InputField
                 placeholder="Description (Optional)"
                 id="description"
-                otherClass="my-5 h-24"
+                containerClass="my-5"
+                otherClass="h-24"
                 value={toDoInputs.description}
                 onChangeProp={(e) => handleInput(e)}
-                maxLength="255"
+                setMaxLength="255"
                 isTextArea={true}
               />
             </div>
             <div className="grid grid-cols-2 gap-12 px-16">
-              <Button type="submit" btnType="blueBTN">
+              <Button
+                btnIsDisabled={
+                  toDoInputs.title.length <= 0 || isFetching || disabledBtn
+                }
+                type="submit"
+                btnType="blueBTN"
+              >
                 Save
               </Button>
               <Button type="button" btnType="redBTN" onClick={resetStates}>
