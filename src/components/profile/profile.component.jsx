@@ -1,10 +1,11 @@
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { ProfileContext } from "../../contexts/profile.context";
 import Modal from "../modal/modal.component";
 import AddIcon from "../icons/add.icon.component";
 import EditIcon from "../icons/edit.icon.component";
 import DeleteIcon from "../icons/delete.icon.component";
 import DefaultIcon from "../icons/default.icon.component";
+import ElipsisIcon from "../icons/elipsis.icon.component";
 import Button from "../button/button.component";
 import InputField from "../input-field/input-field.component";
 
@@ -41,6 +42,14 @@ const Profile = () => {
     return () => controller?.abort();
   }, []);
 
+  useEffect(() => {
+    if (currentProfile) {
+      console.log(document.getElementById("profileName")?.offsetHeight);
+      document.getElementById("selectProfile").style.height =
+        document.getElementById("profileName")?.offsetHeight + "px";
+    }
+  }, [currentProfile]);
+
   const handleProfileChange = (e) => {
     setCurrentProfileId(e.target.value);
     const profile = profiles.find((prof) => prof.id == e.target.value);
@@ -51,6 +60,7 @@ const Profile = () => {
     e.target.value.length <= 0 ? setDisabledBtn(true) : setDisabledBtn(false);
     setName(e.target.value);
     setErrors([]);
+    document.body.style.background = "#d4eeff";
   };
 
   const handleCreateProfile = (e) => {
@@ -86,6 +96,7 @@ const Profile = () => {
           setCurrentProfile(data.profile);
         } else if (data.error) {
           setErrors(data.error);
+          document.body.style.background = "#f29d9d";
           console.log(data);
         }
         setIsFetching(false);
@@ -130,6 +141,7 @@ const Profile = () => {
           );
         } else if (data.error) {
           setErrors(data.error);
+          document.body.style.background = "#f29d9d";
           console.log(data);
         }
         setIsFetching(false);
@@ -203,6 +215,7 @@ const Profile = () => {
 
   const resetStates = () => {
     setIsOpen(false);
+    document.body.style.background = "#d4eeff";
     setTimeout(() => {
       setErrors([]);
       setIsEditProfile(false);
@@ -219,9 +232,9 @@ const Profile = () => {
   return (
     <Fragment>
       <div className="mx-auto flex">
-        <div className="flex flex-col relative w-[480px]">
+        <div className="flex flex-col relative 5xs:w-[248px] w-[505px]">
           <div className="flex items-center">
-            <p className="text-gray-400 mr-2 text-lg">Profile</p>
+            <p className="text-gray-400 mr-2 text-lg 5xs:text-sm">Profile</p>
             <div title="Create your profile.">
               <AddIcon
                 otherClass="w-6 h-6 text-gray-400 hover:text-green-600 cursor-pointer transition-all"
@@ -288,7 +301,8 @@ const Profile = () => {
             </div>
           </div>
           <select
-            className="appearance-none bg-transparent absolute bottom-0 opacity-0 w-[480px] h-[40px] cursor-pointer"
+            id="selectProfile"
+            className="appearance-none bg-transparent absolute bottom-0 opacity-0 5xs:w-full w-[505px] h-[40px] cursor-pointer"
             onChange={(e) => handleProfileChange(e)}
             value={currentProfileId}
           >
@@ -298,7 +312,12 @@ const Profile = () => {
               </option>
             ))}
           </select>
-          <h3 className="text-3xl">{currentProfile.name}</h3>
+          <div className="flex justify-between transition-all duration-300">
+            <h3 id="profileName" className="text-3xl 5xs:text-2xl">
+              {currentProfile.name}
+            </h3>
+            <ElipsisIcon otherClass="w-6 h-6" />
+          </div>
         </div>
       </div>
 
