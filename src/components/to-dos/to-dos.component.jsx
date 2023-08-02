@@ -207,7 +207,7 @@ const ToDos = () => {
       <div className="mt-8">
         <div title="Add To Do entry.">
           <Button
-            otherClass="w-full"
+            otherClass="w-full 5xs:text-sm"
             btnType="grayBTN"
             onClick={() => setIsOpen(true)}
           >
