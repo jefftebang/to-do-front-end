@@ -30,7 +30,7 @@ const InputField = ({
       ) : (
         <input
           {...otherProps}
-          className={`shadow-[inset_0px_10px_8px_0px_#00000024] outline-none pt-3 px-1  ${
+          className={`shadow-[inset_0px_10px_8px_0px_#00000024] outline-none pt-3 px-1 transition-all duration-500 ${
             requestErrors?.length > 0 ? "bg-red-100" : "bg-gray-50"
           } ${otherClass}`}
           value={value}
