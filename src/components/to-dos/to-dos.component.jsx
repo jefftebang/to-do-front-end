@@ -207,7 +207,7 @@ const ToDos = () => {
       <div className="mt-8">
         <div title="Add To Do entry.">
           <Button
-            otherClass="w-full 5xs:text-sm"
+            otherClass="w-full"
             btnType="grayBTN"
             onClick={() => setIsOpen(true)}
           >
@@ -322,7 +322,7 @@ const ToDos = () => {
               <InputField
                 placeholder="Title"
                 id="title"
-                otherClass="w-[500px]"
+                otherClass="xs:w-[300px]"
                 value={toDoInputs.title}
                 onChangeProp={(e) => handleInput(e)}
                 type="text"
@@ -332,14 +332,14 @@ const ToDos = () => {
                 placeholder="Description (Optional)"
                 id="description"
                 containerClass="my-5"
-                otherClass="h-24"
+                otherClass="w-full h-24"
                 value={toDoInputs.description}
                 onChangeProp={(e) => handleInput(e)}
                 setMaxLength="255"
                 isTextArea={true}
               />
             </div>
-            <div className="grid grid-cols-2 gap-12 px-16">
+            <div className="grid grid-cols-2 gap-12 5xs:px-0 px-16">
               <Button
                 btnIsDisabled={
                   toDoInputs.title.length <= 0 || isFetching || disabledBtn

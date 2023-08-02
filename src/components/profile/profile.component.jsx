@@ -232,9 +232,9 @@ const Profile = () => {
   return (
     <Fragment>
       <div className="mx-auto flex">
-        <div className="flex flex-col relative 5xs:w-[248px] w-[505px]">
+        <div className="flex flex-col relative 5xs:w-[248px] 4xs:w-[318px] 3xs:w-[378px] 2xs:w-[438px] xs:w-[590px]">
           <div className="flex items-center">
-            <p className="text-gray-400 mr-2 text-lg 5xs:text-sm">Profile</p>
+            <p className="text-gray-400 mr-2 text-lg">Profile</p>
             <div title="Create your profile.">
               <AddIcon
                 otherClass="w-6 h-6 text-gray-400 hover:text-green-600 cursor-pointer transition-all"
@@ -302,7 +302,7 @@ const Profile = () => {
           </div>
           <select
             id="selectProfile"
-            className="appearance-none bg-transparent absolute bottom-0 opacity-0 5xs:w-full w-[505px] h-[40px] cursor-pointer"
+            className="appearance-none bg-transparent absolute bottom-0 opacity-0 5xs:w-full h-[40px] cursor-pointer"
             onChange={(e) => handleProfileChange(e)}
             value={currentProfileId}
           >
@@ -313,7 +313,7 @@ const Profile = () => {
             ))}
           </select>
           <div className="flex justify-between transition-all duration-300">
-            <h3 id="profileName" className="text-3xl 5xs:text-2xl">
+            <h3 id="profileName" className="text-3xl">
               {currentProfile.name}
             </h3>
             <ElipsisIcon otherClass="w-6 h-6" />
@@ -340,7 +340,7 @@ const Profile = () => {
               <span className="font-medium text-gray-700">Note: </span>This will
               delete the To Do list under this profile.
             </p>
-            <div className="grid grid-cols-2 gap-12 mt-7 px-16">
+            <div className="grid grid-cols-2 gap-12 mt-7 5xs:px-0 px-16">
               <Button
                 btnIsDisabled={isFetching}
                 btnType="blueBTN"
@@ -371,7 +371,7 @@ const Profile = () => {
               setMaxLength="30"
               placeholder="Profile name"
               containerClass="my-5"
-              otherClass="w-[300px] mb-1"
+              otherClass="xs:w-[300px] mb-1"
               value={name}
               onChangeProp={(e) => handleInputChange(e)}
               type="text"
